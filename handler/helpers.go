@@ -1,11 +1,11 @@
 package handler
 
 import (
-	json "github.com/json-iterator/go"
+	"github.com/goccy/go-json"
 	"go.uber.org/zap"
 )
 
-func (h *handler) generate(event string) ([]byte, error) {
+func (h *Handler) generate(event string) ([]byte, error) {
 	si := h.getServInfo(event)
 	pld, err := json.Marshal(si)
 	if err != nil {
@@ -17,7 +17,7 @@ func (h *handler) generate(event string) ([]byte, error) {
 	return pld, nil
 }
 
-func (h *handler) sendClose() {
+func (h *Handler) sendClose() {
 	c, err := h.generate(EventClose)
 	if err != nil {
 		h.log.Error("payload marshaling error", zap.Error(err))

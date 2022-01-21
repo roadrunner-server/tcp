@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type handler struct {
+type Handler struct {
 	conn        net.Conn
 	connections *sync.Map
 	serverName  string
@@ -28,8 +28,8 @@ type handler struct {
 }
 
 func NewHandler(conn net.Conn, delim []byte, serverName string, wPool func(*payload.Payload) (*payload.Payload, error),
-	pldPool *sync.Pool, siPool *sync.Pool, readBufPool *sync.Pool, resBufPool *sync.Pool, connections *sync.Map, log *zap.Logger) *handler {
-	return &handler{
+	pldPool *sync.Pool, siPool *sync.Pool, readBufPool *sync.Pool, resBufPool *sync.Pool, connections *sync.Map, log *zap.Logger) *Handler {
+	return &Handler{
 		conn:         conn,
 		connections:  connections,
 		serverName:   serverName,
@@ -44,7 +44,7 @@ func NewHandler(conn net.Conn, delim []byte, serverName string, wPool func(*payl
 	}
 }
 
-func (h *handler) Start() {
+func (h *Handler) Start() {
 	// store connection to close from outside
 	h.connections.Store(h.uuid, h.conn)
 	defer h.connections.Delete(h.uuid)
@@ -75,11 +75,11 @@ func (h *handler) Start() {
 	}
 }
 
-func (h *handler) Release() {
+func (h *Handler) Release() {
 	// noop at the moment
 }
 
-func (h *handler) readLoop() {
+func (h *Handler) readLoop() {
 	rbuf := h.getReadBuf()
 	resbuf := h.getResBuf()
 	defer h.putReadBuf(rbuf)
@@ -165,7 +165,7 @@ func (h *handler) readLoop() {
 	}
 }
 
-func (h *handler) handleAndContinue(rsp *payload.Payload) bool {
+func (h *Handler) handleAndContinue(rsp *payload.Payload) bool {
 	switch {
 	case bytes.Equal(rsp.Context, CONTINUE):
 		// cont
