@@ -7,11 +7,11 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/roadrunner-server/api/v2/payload"
 	"github.com/roadrunner-server/api/v2/plugins/config"
 	"github.com/roadrunner-server/api/v2/plugins/server"
+	"github.com/roadrunner-server/api/v2/pool"
 	rrErrors "github.com/roadrunner-server/errors"
-	"github.com/roadrunner-server/sdk/v2/payload"
-	"github.com/roadrunner-server/sdk/v2/pool"
 	"github.com/roadrunner-server/sdk/v2/utils"
 	"github.com/roadrunner-server/tcp/v2/handler"
 	"go.uber.org/zap"
@@ -94,7 +94,7 @@ func (p *Plugin) Serve() chan error {
 	errCh := make(chan error, 1)
 
 	var err error
-	p.wPool, err = p.server.NewWorkerPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName})
+	p.wPool, err = p.server.NewWorkerPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
 	if err != nil {
 		errCh <- err
 		return errCh
