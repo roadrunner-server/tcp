@@ -13,7 +13,7 @@ require (
 
 require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/roadrunner-server/goridge/v3 v3.4.0 // indirect
+	github.com/roadrunner-server/goridge/v3 v3.4.1 // indirect
 	github.com/roadrunner-server/tcplisten v1.1.2 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
