@@ -13,7 +13,7 @@ require (
 
 require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/roadrunner-server/goridge/v3 v3.4.2 // indirect
+	github.com/roadrunner-server/goridge/v3 v3.4.4 // indirect
 	github.com/roadrunner-server/tcplisten v1.1.2 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
@@ -22,5 +22,5 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
-	golang.org/x/sys v0.0.0-20220624220833-87e55d714810 // indirect
+	golang.org/x/sys v0.0.0-20220627191245-f75cf1eec38b // indirect
 )
