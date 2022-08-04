@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/goccy/go-json v0.9.10
 	github.com/google/uuid v1.3.0
-	github.com/roadrunner-server/api/v2 v2.20.0
+	github.com/roadrunner-server/api/v2 v2.20.1
 	github.com/roadrunner-server/errors v1.1.2
 	github.com/roadrunner-server/sdk/v2 v2.18.2
 	go.uber.org/zap v1.21.0
