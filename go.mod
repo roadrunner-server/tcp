@@ -3,7 +3,7 @@ module github.com/roadrunner-server/tcp/v2
 go 1.19
 
 require (
-	github.com/goccy/go-json v0.9.10
+	github.com/goccy/go-json v0.9.11
 	github.com/google/uuid v1.3.0
 	github.com/roadrunner-server/api/v2 v2.21.0
 	github.com/roadrunner-server/errors v1.2.0
@@ -22,5 +22,5 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2 // indirect
 )
