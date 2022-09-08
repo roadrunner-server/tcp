@@ -11,7 +11,9 @@ import (
 	"github.com/roadrunner-server/api/v2/plugins/config"
 	"github.com/roadrunner-server/api/v2/plugins/server"
 	"github.com/roadrunner-server/api/v2/pool"
+	"github.com/roadrunner-server/api/v2/state/process"
 	rrErrors "github.com/roadrunner-server/errors"
+	processImpl "github.com/roadrunner-server/sdk/v2/state/process"
 	"github.com/roadrunner-server/sdk/v2/utils"
 	"github.com/roadrunner-server/tcp/v2/handler"
 	"go.uber.org/zap"
@@ -164,6 +166,26 @@ func (p *Plugin) Reset() error {
 	p.log.Info("plugin was successfully reset")
 
 	return nil
+}
+
+func (p *Plugin) Workers() []*process.State {
+	p.RLock()
+	wrk := p.wPool.Workers()
+	p.RUnlock()
+
+	ps := make([]*process.State, len(wrk))
+
+	for i := 0; i < len(wrk); i++ {
+		st, err := processImpl.WorkerProcessState(wrk[i])
+		if err != nil {
+			p.log.Error("jobs workers state", zap.Error(err))
+			return nil
+		}
+
+		ps[i] = st
+	}
+
+	return ps
 }
 
 func (p *Plugin) Name() string {
