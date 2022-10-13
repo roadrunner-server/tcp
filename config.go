@@ -2,20 +2,20 @@ package tcp
 
 import (
 	"github.com/roadrunner-server/errors"
-	"github.com/roadrunner-server/sdk/v2/pool"
-	"github.com/roadrunner-server/sdk/v2/utils"
+	"github.com/roadrunner-server/sdk/v3/pool"
+	"github.com/roadrunner-server/sdk/v3/utils"
 )
 
-type Server struct {
+type Srv struct {
 	Addr       string `mapstructure:"addr"`
 	Delimiter  string `mapstructure:"delimiter"`
 	delimBytes []byte
 }
 
 type Config struct {
-	Servers        map[string]*Server `mapstructure:"servers"`
-	ReadBufferSize int                `mapstructure:"read_buf_size"`
-	Pool           *pool.Config       `mapstructure:"pool"`
+	Servers        map[string]*Srv `mapstructure:"servers"`
+	ReadBufferSize int             `mapstructure:"read_buf_size"`
+	Pool           *pool.Config    `mapstructure:"pool"`
 }
 
 func (c *Config) InitDefault() error {

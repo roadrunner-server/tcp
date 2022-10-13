@@ -7,15 +7,14 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/roadrunner-server/api/v2/payload"
-	"github.com/roadrunner-server/api/v2/plugins/config"
-	"github.com/roadrunner-server/api/v2/plugins/server"
-	"github.com/roadrunner-server/api/v2/pool"
-	"github.com/roadrunner-server/api/v2/state/process"
 	rrErrors "github.com/roadrunner-server/errors"
-	processImpl "github.com/roadrunner-server/sdk/v2/state/process"
-	"github.com/roadrunner-server/sdk/v2/utils"
-	"github.com/roadrunner-server/tcp/v2/handler"
+	"github.com/roadrunner-server/sdk/v3/payload"
+	"github.com/roadrunner-server/sdk/v3/pool"
+	staticPool "github.com/roadrunner-server/sdk/v3/pool/static_pool"
+	"github.com/roadrunner-server/sdk/v3/state/process"
+	"github.com/roadrunner-server/sdk/v3/utils"
+	"github.com/roadrunner-server/sdk/v3/worker"
+	"github.com/roadrunner-server/tcp/v3/handler"
 	"go.uber.org/zap"
 )
 
@@ -24,14 +23,40 @@ const (
 	RrMode     string = "RR_MODE"
 )
 
+type Pool interface {
+	// Workers returns worker list associated with the pool.
+	Workers() (workers []*worker.Process)
+
+	// Exec payload
+	Exec(ctx context.Context, p *payload.Payload) (*payload.Payload, error)
+
+	// Reset kill all workers inside the watcher and replaces with new
+	Reset(ctx context.Context) error
+
+	// Destroy all underlying stack (but let them complete the task).
+	Destroy(ctx context.Context)
+}
+
+// Server creates workers for the application.
+type Server interface {
+	NewPool(ctx context.Context, cfg *pool.Config, env map[string]string, _ *zap.Logger) (*staticPool.Pool, error)
+}
+
+type Configurer interface {
+	// UnmarshalKey takes a single key and unmarshal it into a Struct.
+	UnmarshalKey(name string, out any) error
+	// Has checks if config section exists.
+	Has(name string) bool
+}
+
 type Plugin struct {
 	sync.RWMutex
 	cfg         *Config
 	log         *zap.Logger
-	server      server.Server
+	server      Server
 	connections sync.Map // uuid -> conn
 
-	wPool     pool.Pool
+	wPool     Pool
 	listeners sync.Map // server -> listener
 
 	resBufPool   sync.Pool
@@ -40,7 +65,7 @@ type Plugin struct {
 	pldPool      sync.Pool
 }
 
-func (p *Plugin) Init(log *zap.Logger, cfg config.Configurer, server server.Server) error {
+func (p *Plugin) Init(log *zap.Logger, cfg Configurer, server Server) error {
 	const op = rrErrors.Op("tcp_plugin_init")
 
 	if !cfg.Has(pluginName) {
@@ -96,7 +121,7 @@ func (p *Plugin) Serve() chan error {
 	errCh := make(chan error, 1)
 
 	var err error
-	p.wPool, err = p.server.NewWorkerPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
+	p.wPool, err = p.server.NewPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
 	if err != nil {
 		errCh <- err
 		return errCh
@@ -176,7 +201,7 @@ func (p *Plugin) Workers() []*process.State {
 	ps := make([]*process.State, len(wrk))
 
 	for i := 0; i < len(wrk); i++ {
-		st, err := processImpl.WorkerProcessState(wrk[i])
+		st, err := process.WorkerProcessState(wrk[i])
 		if err != nil {
 			p.log.Error("jobs workers state", zap.Error(err))
 			return nil
@@ -211,7 +236,7 @@ func (p *Plugin) RPC() interface{} {
 
 func (p *Plugin) Exec(pld *payload.Payload) (*payload.Payload, error) {
 	p.RLock()
-	rsp, err := p.wPool.Exec(pld)
+	rsp, err := p.wPool.Exec(context.Background(), pld)
 	if err != nil {
 		p.RUnlock()
 		return nil, err
