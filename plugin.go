@@ -26,15 +26,16 @@ const (
 type Pool interface {
 	// Workers returns worker list associated with the pool.
 	Workers() (workers []*worker.Process)
-
 	// Exec payload
 	Exec(ctx context.Context, p *payload.Payload) (*payload.Payload, error)
-
 	// Reset kill all workers inside the watcher and replaces with new
 	Reset(ctx context.Context) error
-
 	// Destroy all underlying stack (but let them complete the task).
 	Destroy(ctx context.Context)
+}
+
+type Logger interface {
+	NamedLogger(name string) *zap.Logger
 }
 
 // Server creates workers for the application.
@@ -65,7 +66,7 @@ type Plugin struct {
 	pldPool      sync.Pool
 }
 
-func (p *Plugin) Init(log *zap.Logger, cfg Configurer, server Server) error {
+func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 	const op = rrErrors.Op("tcp_plugin_init")
 
 	if !cfg.Has(pluginName) {
@@ -111,8 +112,7 @@ func (p *Plugin) Init(log *zap.Logger, cfg Configurer, server Server) error {
 		},
 	}
 
-	p.log = new(zap.Logger)
-	*p.log = *log
+	p.log = log.NamedLogger(pluginName)
 	p.server = server
 	return nil
 }
@@ -159,7 +159,7 @@ func (p *Plugin) Serve() chan error {
 	return errCh
 }
 
-func (p *Plugin) Stop() error {
+func (p *Plugin) Stop(context.Context) error {
 	// close all connections
 	p.connections.Range(func(_, value interface{}) bool {
 		conn := value.(net.Conn)
@@ -228,7 +228,7 @@ func (p *Plugin) Close(uuid string) error {
 	return nil
 }
 
-func (p *Plugin) RPC() interface{} {
+func (p *Plugin) RPC() any {
 	return &rpc{
 		p: p,
 	}
