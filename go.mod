@@ -1,4 +1,4 @@
-module github.com/roadrunner-server/tcp/v3
+module github.com/roadrunner-server/tcp/v4
 
 go 1.19
 
@@ -6,7 +6,7 @@ require (
 	github.com/goccy/go-json v0.10.0
 	github.com/google/uuid v1.3.0
 	github.com/roadrunner-server/errors v1.2.0
-	github.com/roadrunner-server/sdk/v3 v3.1.0
+	github.com/roadrunner-server/sdk/v4 v4.0.0
 	go.uber.org/zap v1.24.0
 )
 

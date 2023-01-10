@@ -3,7 +3,7 @@ package handler
 import (
 	"bytes"
 
-	"github.com/roadrunner-server/sdk/v3/payload"
+	"github.com/roadrunner-server/sdk/v4/payload"
 )
 
 func (h *Handler) getServInfo(event string) *ServerInfo {
