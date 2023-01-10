@@ -2,8 +2,8 @@ package tcp
 
 import (
 	"github.com/roadrunner-server/errors"
-	"github.com/roadrunner-server/sdk/v3/pool"
-	"github.com/roadrunner-server/sdk/v3/utils"
+	"github.com/roadrunner-server/sdk/v4/pool"
+	"github.com/roadrunner-server/sdk/v4/utils"
 )
 
 type Srv struct {
