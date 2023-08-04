@@ -27,7 +27,10 @@ type Handler struct {
 	pldPool      *sync.Pool
 }
 
-func NewHandler(conn net.Conn, delim []byte, serverName string, wPool func(*payload.Payload) (*payload.Payload, error),
+func NewHandler(
+	conn net.Conn,
+	delim []byte, serverName string,
+	wPool func(*payload.Payload) (*payload.Payload, error),
 	pldPool *sync.Pool, siPool *sync.Pool, readBufPool *sync.Pool, resBufPool *sync.Pool, connections *sync.Map, log *zap.Logger) *Handler {
 	return &Handler{
 		conn:         conn,

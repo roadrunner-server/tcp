@@ -6,8 +6,8 @@ require (
 	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.3.0
 	github.com/roadrunner-server/errors v1.2.0
-	github.com/roadrunner-server/sdk/v4 v4.3.1
-	go.uber.org/zap v1.24.0
+	github.com/roadrunner-server/sdk/v4 v4.4.0-beta.3
+	go.uber.org/zap v1.25.0
 )
 
 require (
@@ -18,8 +18,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
 )
