@@ -3,12 +3,11 @@ package tcp
 import (
 	"bytes"
 	"context"
-	"errors"
 	"net"
 	"sync"
 
 	"github.com/google/uuid"
-	rrErrors "github.com/roadrunner-server/errors"
+	"github.com/roadrunner-server/errors"
 	"github.com/roadrunner-server/sdk/v4/payload"
 	"github.com/roadrunner-server/sdk/v4/pool"
 	staticPool "github.com/roadrunner-server/sdk/v4/pool/static_pool"
@@ -68,15 +67,15 @@ type Plugin struct {
 }
 
 func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
-	const op = rrErrors.Op("tcp_plugin_init")
+	const op = errors.Op("tcp_plugin_init")
 
 	if !cfg.Has(pluginName) {
-		return rrErrors.E(op, rrErrors.Disabled)
+		return errors.E(op, errors.Disabled)
 	}
 
 	err := cfg.UnmarshalKey(pluginName, &p.cfg)
 	if err != nil {
-		return rrErrors.E(op, err)
+		return errors.E(op, err)
 	}
 
 	err = p.cfg.InitDefault()
@@ -182,11 +181,11 @@ func (p *Plugin) Stop(context.Context) error {
 func (p *Plugin) Reset() error {
 	p.Lock()
 	defer p.Unlock()
-	const op = rrErrors.Op("tcp_reset")
+	const op = errors.Op("tcp_reset")
 	p.log.Info("reset signal was received")
 	err := p.wPool.Reset(context.Background())
 	if err != nil {
-		return rrErrors.E(op, err)
+		return errors.E(op, err)
 	}
 
 	p.log.Info("plugin was successfully reset")
@@ -235,22 +234,36 @@ func (p *Plugin) RPC() any {
 	}
 }
 
-func (p *Plugin) Exec(pld *payload.Payload) (*payload.Payload, error) {
+func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
 	p.RLock()
-	sc := make(chan struct{}, 1)
-	// TODO make(chan struct{}) optimize
-	rsp, err := p.wPool.Exec(context.Background(), pld, sc)
+
+	result, err := p.wPool.Exec(context.Background(), epld, nil)
 	if err != nil {
 		p.RUnlock()
 		return nil, err
 	}
 
-	rs := <-rsp
-	if rs.Payload().IsStream {
-		sc <- struct{}{}
-		return nil, errors.New("streaming is not supported")
+	var r *payload.Payload
+
+	select {
+	case pld := <-result:
+		if pld.Error() != nil {
+			p.RUnlock()
+			return nil, pld.Error()
+		}
+		// streaming is not supported
+		if pld.Payload().IsStream {
+			p.RUnlock()
+			return nil, errors.Str("streaming is not supported")
+		}
+
+		// assign the payload
+		r = pld.Payload()
+	default:
+		p.RUnlock()
+		return nil, errors.Str("activity worker empty response")
 	}
 
 	p.RUnlock()
-	return rs.Payload(), nil
+	return r, nil
 }
