@@ -1,9 +1,10 @@
 package tcp
 
 import (
+	"unsafe"
+
 	"github.com/roadrunner-server/errors"
 	"github.com/roadrunner-server/sdk/v4/pool"
-	"github.com/roadrunner-server/sdk/v4/utils"
 )
 
 type Srv struct {
@@ -38,7 +39,7 @@ func (c *Config) InitDefault() error {
 			continue
 		}
 
-		v.delimBytes = utils.AsBytes(v.Delimiter)
+		v.delimBytes = strToBytes(v.Delimiter)
 	}
 
 	if c.Pool == nil {
@@ -52,4 +53,12 @@ func (c *Config) InitDefault() error {
 	c.Pool.InitDefaults()
 
 	return nil
+}
+
+func strToBytes(data string) []byte {
+	if data == "" {
+		return nil
+	}
+
+	return unsafe.Slice(unsafe.StringData(data), len(data))
 }

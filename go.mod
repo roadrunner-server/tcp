@@ -6,15 +6,15 @@ toolchain go1.21.0
 
 require (
 	github.com/goccy/go-json v0.10.2
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/roadrunner-server/errors v1.3.0
-	github.com/roadrunner-server/sdk/v4 v4.4.0-beta.5
+	github.com/roadrunner-server/goridge/v3 v3.8.0
+	github.com/roadrunner-server/sdk/v4 v4.4.0-beta.8
 	go.uber.org/zap v1.25.0
 )
 
 require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/roadrunner-server/goridge/v3 v3.7.0 // indirect
 	github.com/roadrunner-server/tcplisten v1.4.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect

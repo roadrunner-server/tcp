@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/roadrunner-server/errors"
+	"github.com/roadrunner-server/goridge/v3/pkg/frame"
 	"github.com/roadrunner-server/sdk/v4/payload"
 	"github.com/roadrunner-server/sdk/v4/pool"
 	staticPool "github.com/roadrunner-server/sdk/v4/pool/static_pool"
@@ -252,7 +253,7 @@ func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
 			return nil, pld.Error()
 		}
 		// streaming is not supported
-		if pld.Payload().IsStream {
+		if pld.Payload().Flags&frame.STREAM != 0 {
 			p.RUnlock()
 			return nil, errors.Str("streaming is not supported")
 		}
