@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/roadrunner-server/errors v1.3.0
 	github.com/roadrunner-server/goridge/v3 v3.8.1
-	github.com/roadrunner-server/sdk/v4 v4.4.0-beta.8
+	github.com/roadrunner-server/sdk/v4 v4.4.0
 	go.uber.org/zap v1.25.0
 )
 
