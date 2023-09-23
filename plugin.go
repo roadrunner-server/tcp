@@ -27,6 +27,10 @@ const (
 type Pool interface {
 	// Workers returns worker list associated with the pool.
 	Workers() (workers []*worker.Process)
+	// RemoveWorker removes worker from the pool.
+	RemoveWorker(ctx context.Context) error
+	// AddWorker adds worker to the pool.
+	AddWorker() error
 	// Exec payload
 	Exec(ctx context.Context, p *payload.Payload, stopCh chan struct{}) (chan *staticPool.PExec, error)
 	// Reset kill all workers inside the watcher and replaces with new
@@ -52,7 +56,7 @@ type Configurer interface {
 }
 
 type Plugin struct {
-	sync.RWMutex
+	mu          sync.RWMutex
 	cfg         *Config
 	log         *zap.Logger
 	server      Server
@@ -180,8 +184,8 @@ func (p *Plugin) Stop(context.Context) error {
 }
 
 func (p *Plugin) Reset() error {
-	p.Lock()
-	defer p.Unlock()
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	const op = errors.Op("tcp_reset")
 	p.log.Info("reset signal was received")
 	err := p.wPool.Reset(context.Background())
@@ -195,9 +199,9 @@ func (p *Plugin) Reset() error {
 }
 
 func (p *Plugin) Workers() []*process.State {
-	p.RLock()
+	p.mu.RLock()
 	wrk := p.wPool.Workers()
-	p.RUnlock()
+	p.mu.RUnlock()
 
 	ps := make([]*process.State, len(wrk))
 
@@ -236,11 +240,11 @@ func (p *Plugin) RPC() any {
 }
 
 func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
-	p.RLock()
+	p.mu.RLock()
 
 	result, err := p.wPool.Exec(context.Background(), epld, nil)
 	if err != nil {
-		p.RUnlock()
+		p.mu.RUnlock()
 		return nil, err
 	}
 
@@ -249,22 +253,22 @@ func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
 	select {
 	case pld := <-result:
 		if pld.Error() != nil {
-			p.RUnlock()
+			p.mu.RUnlock()
 			return nil, pld.Error()
 		}
 		// streaming is not supported
 		if pld.Payload().Flags&frame.STREAM != 0 {
-			p.RUnlock()
+			p.mu.RUnlock()
 			return nil, errors.Str("streaming is not supported")
 		}
 
 		// assign the payload
 		r = pld.Payload()
 	default:
-		p.RUnlock()
+		p.mu.RUnlock()
 		return nil, errors.Str("activity worker empty response")
 	}
 
-	p.RUnlock()
+	p.mu.RUnlock()
 	return r, nil
 }
