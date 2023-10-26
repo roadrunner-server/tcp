@@ -10,7 +10,7 @@ require (
 	github.com/roadrunner-server/goridge/v3 v3.8.1
 	github.com/roadrunner-server/logger/v4 v4.2.6
 	github.com/roadrunner-server/rpc/v4 v4.2.7
-	github.com/roadrunner-server/server/v4 v4.4.4
+	github.com/roadrunner-server/server/v4 v4.4.5
 	github.com/roadrunner-server/tcp/v4 v4.3.4
 	github.com/stretchr/testify v1.8.4
 )
