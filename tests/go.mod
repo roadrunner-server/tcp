@@ -5,13 +5,13 @@ go 1.21
 toolchain go1.21.1
 
 require (
-	github.com/roadrunner-server/config/v4 v4.6.1
+	github.com/roadrunner-server/config/v4 v4.6.2
 	github.com/roadrunner-server/endure/v2 v2.4.3
 	github.com/roadrunner-server/goridge/v3 v3.8.1
-	github.com/roadrunner-server/logger/v4 v4.2.8
-	github.com/roadrunner-server/rpc/v4 v4.2.9
-	github.com/roadrunner-server/server/v4 v4.5.1
-	github.com/roadrunner-server/tcp/v4 v4.3.6
+	github.com/roadrunner-server/logger/v4 v4.2.9
+	github.com/roadrunner-server/rpc/v4 v4.2.10
+	github.com/roadrunner-server/server/v4 v4.5.2
+	github.com/roadrunner-server/tcp/v4 v4.3.7
 	github.com/stretchr/testify v1.8.4
 )
 
@@ -25,6 +25,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
