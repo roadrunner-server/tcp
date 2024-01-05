@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/roadrunner-server/errors v1.3.0
 	github.com/roadrunner-server/goridge/v3 v3.8.1
-	github.com/roadrunner-server/sdk/v4 v4.5.4
+	github.com/roadrunner-server/sdk/v4 v4.5.5
 	go.uber.org/zap v1.26.0
 )
 
@@ -24,6 +24,6 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 )
