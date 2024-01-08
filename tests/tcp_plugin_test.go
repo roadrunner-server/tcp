@@ -29,7 +29,7 @@ func TestTCPInit(t *testing.T) {
 	cont := endure.New(slog.LevelDebug, endure.GracefulShutdownTimeout(time.Second*30))
 
 	cfg := &config.Plugin{
-		Version: "2.9.0",
+		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-init.yaml",
 		Prefix:  "rr",
 	}
@@ -150,7 +150,7 @@ func TestTCPEmptySend(t *testing.T) {
 	cont := endure.New(slog.LevelDebug, endure.GracefulShutdownTimeout(time.Minute))
 
 	cfg := &config.Plugin{
-		Version: "2.9.0",
+		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-empty.yaml",
 		Prefix:  "rr",
 	}
@@ -228,7 +228,7 @@ func TestTCPConnClose(t *testing.T) {
 	cont := endure.New(slog.LevelDebug, endure.GracefulShutdownTimeout(time.Minute))
 
 	cfg := &config.Plugin{
-		Version: "2.9.0",
+		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-close.yaml",
 		Prefix:  "rr",
 	}
@@ -308,7 +308,7 @@ func TestTCPFull(t *testing.T) {
 	cont := endure.New(slog.LevelDebug, endure.GracefulShutdownTimeout(time.Minute))
 
 	cfg := &config.Plugin{
-		Version: "2.9.0",
+		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-full.yaml",
 		Prefix:  "rr",
 	}
