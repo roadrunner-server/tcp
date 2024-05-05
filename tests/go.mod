@@ -3,12 +3,12 @@ module tests
 go 1.22.2
 
 require (
-	github.com/roadrunner-server/config/v4 v4.8.0
+	github.com/roadrunner-server/config/v4 v4.8.1
 	github.com/roadrunner-server/endure/v2 v2.4.4
 	github.com/roadrunner-server/goridge/v3 v3.8.2
-	github.com/roadrunner-server/logger/v4 v4.4.0
-	github.com/roadrunner-server/rpc/v4 v4.4.0
-	github.com/roadrunner-server/server/v4 v4.8.0
+	github.com/roadrunner-server/logger/v4 v4.4.1
+	github.com/roadrunner-server/rpc/v4 v4.4.1
+	github.com/roadrunner-server/server/v4 v4.8.1
 	github.com/roadrunner-server/tcp/v4 v4.3.14
 	github.com/stretchr/testify v1.9.0
 )
@@ -51,8 +51,8 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	google.golang.org/protobuf v1.34.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
