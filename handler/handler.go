@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/roadrunner-server/sdk/v4/payload"
+	"github.com/roadrunner-server/pool/payload"
 	"go.uber.org/zap"
 )
 

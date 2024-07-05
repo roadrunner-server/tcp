@@ -3,6 +3,7 @@ package tcp
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/rpc"
 	"os"
@@ -12,15 +13,13 @@ import (
 	"testing"
 	"time"
 
-	"log/slog"
-
-	"github.com/roadrunner-server/config/v4"
+	"github.com/roadrunner-server/config/v5"
 	"github.com/roadrunner-server/endure/v2"
 	goridgeRpc "github.com/roadrunner-server/goridge/v3/pkg/rpc"
-	"github.com/roadrunner-server/logger/v4"
-	rpcPlugin "github.com/roadrunner-server/rpc/v4"
-	"github.com/roadrunner-server/server/v4"
-	"github.com/roadrunner-server/tcp/v4"
+	"github.com/roadrunner-server/logger/v5"
+	rpcPlugin "github.com/roadrunner-server/rpc/v5"
+	"github.com/roadrunner-server/server/v5"
+	"github.com/roadrunner-server/tcp/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -31,7 +30,6 @@ func TestTCPInit(t *testing.T) {
 	cfg := &config.Plugin{
 		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-init.yaml",
-		Prefix:  "rr",
 	}
 
 	err := cont.RegisterAll(
@@ -152,7 +150,6 @@ func TestTCPEmptySend(t *testing.T) {
 	cfg := &config.Plugin{
 		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-empty.yaml",
-		Prefix:  "rr",
 	}
 
 	err := cont.RegisterAll(
@@ -230,7 +227,6 @@ func TestTCPConnClose(t *testing.T) {
 	cfg := &config.Plugin{
 		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-close.yaml",
-		Prefix:  "rr",
 	}
 
 	err := cont.RegisterAll(
@@ -310,7 +306,6 @@ func TestTCPFull(t *testing.T) {
 	cfg := &config.Plugin{
 		Version: "2023.3.0",
 		Path:    "configs/.rr-tcp-full.yaml",
-		Prefix:  "rr",
 	}
 
 	err := cont.RegisterAll(

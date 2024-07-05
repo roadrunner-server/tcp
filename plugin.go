@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/roadrunner-server/errors"
 	"github.com/roadrunner-server/goridge/v3/pkg/frame"
-	"github.com/roadrunner-server/sdk/v4/payload"
-	"github.com/roadrunner-server/sdk/v4/pool"
-	staticPool "github.com/roadrunner-server/sdk/v4/pool/static_pool"
-	"github.com/roadrunner-server/sdk/v4/state/process"
-	"github.com/roadrunner-server/sdk/v4/utils"
-	"github.com/roadrunner-server/sdk/v4/worker"
-	"github.com/roadrunner-server/tcp/v4/handler"
+	"github.com/roadrunner-server/pool/payload"
+	"github.com/roadrunner-server/pool/pool"
+	staticPool "github.com/roadrunner-server/pool/pool/static_pool"
+	"github.com/roadrunner-server/pool/state/process"
+	"github.com/roadrunner-server/pool/worker"
+	"github.com/roadrunner-server/tcp/v5/handler"
+	"github.com/roadrunner-server/tcplisten"
 	"go.uber.org/zap"
 )
 
@@ -25,7 +25,7 @@ const (
 )
 
 type Pool interface {
-	// Workers returns worker list associated with the pool.
+	// Workers return a worker list associated with the pool.
 	Workers() (workers []*worker.Process)
 	// RemoveWorker removes worker from the pool.
 	RemoveWorker(ctx context.Context) error
@@ -33,9 +33,9 @@ type Pool interface {
 	AddWorker() error
 	// Exec payload
 	Exec(ctx context.Context, p *payload.Payload, stopCh chan struct{}) (chan *staticPool.PExec, error)
-	// Reset kill all workers inside the watcher and replaces with new
+	// Reset kills all workers inside the watcher and replaces with new
 	Reset(ctx context.Context) error
-	// Destroy all underlying stack (but let them complete the task).
+	// Destroy all underlying stacks (but let them complete the task).
 	Destroy(ctx context.Context)
 }
 
@@ -51,7 +51,7 @@ type Server interface {
 type Configurer interface {
 	// UnmarshalKey takes a single key and unmarshal it into a Struct.
 	UnmarshalKey(name string, out any) error
-	// Has checks if config section exists.
+	// Has checks if a config section exists.
 	Has(name string) bool
 }
 
@@ -135,7 +135,7 @@ func (p *Plugin) Serve() chan error {
 	for k := range p.cfg.Servers {
 		go func(addr string, delim []byte, name string) {
 			// create a TCP listener
-			l, err := utils.CreateListener(addr)
+			l, err := tcplisten.CreateListener(addr)
 			if err != nil {
 				errCh <- err
 				return
