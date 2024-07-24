@@ -1,14 +1,16 @@
 module tests
 
-go 1.22.5
+go 1.22
+
+toolchain go1.22.5
 
 require (
-	github.com/roadrunner-server/config/v5 v5.0.0
-	github.com/roadrunner-server/endure/v2 v2.4.5
+	github.com/roadrunner-server/config/v5 v5.0.1
+	github.com/roadrunner-server/endure/v2 v2.4.6
 	github.com/roadrunner-server/goridge/v3 v3.8.3
-	github.com/roadrunner-server/logger/v5 v5.0.0
-	github.com/roadrunner-server/rpc/v5 v5.0.0
-	github.com/roadrunner-server/server/v5 v5.0.0
+	github.com/roadrunner-server/logger/v5 v5.0.1
+	github.com/roadrunner-server/rpc/v5 v5.0.1
+	github.com/roadrunner-server/server/v5 v5.0.1
 	github.com/roadrunner-server/tcp/v5 v5.0.0
 	github.com/stretchr/testify v1.9.0
 )
@@ -50,7 +52,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
