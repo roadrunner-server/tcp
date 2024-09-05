@@ -164,23 +164,47 @@ func (p *Plugin) Serve() chan error {
 	return errCh
 }
 
-func (p *Plugin) Stop(context.Context) error {
-	// close all connections
-	p.connections.Range(func(_, value interface{}) bool {
-		conn := value.(net.Conn)
-		if conn != nil {
-			_ = conn.Close()
+func (p *Plugin) Stop(ctx context.Context) error {
+	doneCh := make(chan struct{}, 1)
+
+	go func() {
+		// close all connections
+		p.mu.Lock()
+		defer p.mu.Unlock()
+
+		p.connections.Range(func(_, value interface{}) bool {
+			conn := value.(net.Conn)
+			if conn != nil {
+				_ = conn.Close()
+			}
+			return true
+		})
+
+		// then close all listeners
+		p.listeners.Range(func(_, value interface{}) bool {
+			_ = value.(net.Listener).Close()
+			return true
+		})
+		if p.wPool != nil {
+			switch pp := p.wPool.(type) {
+			case *staticPool.Pool:
+				if pp != nil {
+					pp.Destroy(ctx)
+				}
+			default:
+				// pool is nil, nothing to do
+			}
 		}
-		return true
-	})
 
-	// then close all listeners
-	p.listeners.Range(func(_, value interface{}) bool {
-		_ = value.(net.Listener).Close()
-		return true
-	})
+		doneCh <- struct{}{}
+	}()
 
-	return nil
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-doneCh:
+		return nil
+	}
 }
 
 func (p *Plugin) Reset() error {
