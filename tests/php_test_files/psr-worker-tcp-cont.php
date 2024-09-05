@@ -19,8 +19,6 @@ while ($request = $tcpWorker->waitRequest()) {
 
     try {
         if ($request->event === TcpEvent::Connected) {
-            // -----------------
-
             // Or send response to the TCP connection, for example, to the SMTP client
             $tcpWorker->respond("hello \r\n");
         } elseif ($request->event === TcpEvent::Data) {
@@ -33,7 +31,6 @@ while ($request = $tcpWorker->waitRequest()) {
                     'remote_addr' => "foo1",
                 ]));
             } elseif ($request->server === 'server2') {
-
                 // Send response to the TCP connection and wait for the next request
                 $tcpWorker->respond(json_encode([
                     'body' => $request->body,
@@ -49,6 +46,11 @@ while ($request = $tcpWorker->waitRequest()) {
             // Handle closed connection event
         } elseif ($request->event === "CLOSE") {
                 // Send response to the TCP connection and wait for the next request
+                $tcpWorker->respond(json_encode([
+                    'body' => $request->body,
+                    'remote_addr' => "foo3",
+                ]));
+        } else {
                 $tcpWorker->respond(json_encode([
                     'body' => $request->body,
                     'remote_addr' => "foo3",

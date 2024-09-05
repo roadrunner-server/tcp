@@ -22,4 +22,3 @@ tcp:
   pool:
     num_workers: 2
     allocate_timeout: 60s
-    destroy_timeout: 1s

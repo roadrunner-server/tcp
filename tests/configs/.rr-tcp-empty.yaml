@@ -15,7 +15,6 @@ tcp:
   pool:
     num_workers: 2
     allocate_timeout: 60s
-    destroy_timeout: 5s
 
 endure:
   grace_period: 30s
