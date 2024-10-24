@@ -45,12 +45,11 @@ func (c *Config) InitDefault() error {
 	if c.Pool == nil {
 		c.Pool = &pool.Config{}
 	}
+	c.Pool.InitDefaults()
 
 	if c.ReadBufferSize == 0 {
 		c.ReadBufferSize = 1024 * 1024 * 1
 	}
-
-	c.Pool.InitDefaults()
 
 	return nil
 }
