@@ -49,8 +49,8 @@ github.com/roadrunner-server/goridge/v3 v3.8.3 h1:XmjrOFnI6ZbQTPaP39DEk8KwLUNTgj
 github.com/roadrunner-server/goridge/v3 v3.8.3/go.mod h1:4TZU8zgkKIZCsH51qwGMpvyXCT59u/8z6q8sCe4ZGAQ=
 github.com/roadrunner-server/logger/v5 v5.0.4 h1:DiydGsyhiqLRR8HYaT8jarzdw1LS+WiJb0W684zeaz8=
 github.com/roadrunner-server/logger/v5 v5.0.4/go.mod h1:ygRLH1siEFgSWg/8u+8WXCHiReSA9hJDZFHyWurt/hY=
-github.com/roadrunner-server/pool v1.0.3 h1:aARAk6w3b0XCPZ/va8V1sRgcPJRFDyY5ZOPvNrkINhs=
-github.com/roadrunner-server/pool v1.0.3/go.mod h1:EQNY0EHgG8aX3oeIjoQn6fZW1ttoZs/GL8pnkUhmN/Q=
+github.com/roadrunner-server/pool v1.1.0 h1:65MmexdO+Xhm1tXAhLXLVzagb8AIDDqBVEi9VET0lyQ=
+github.com/roadrunner-server/pool v1.1.0/go.mod h1:x3wyyniz3CAP4jtu0CrJYTmbLyf6TVO2Xi4xMkNOjkA=
 github.com/roadrunner-server/rpc/v5 v5.0.4 h1:QZW42Lunhjx5sDDf7BhyAdPQFyR9OCeBKdZp/2gMiQQ=
 github.com/roadrunner-server/rpc/v5 v5.0.4/go.mod h1:kLatMg8eGwLMlXFL+P3CWm3+r/4KsK9qcJokE1ACamE=
 github.com/roadrunner-server/server/v5 v5.1.2 h1:Y5ufczlyRM5FxcAatSpuE+TN432Vxxa3P4BZwfd7W38=

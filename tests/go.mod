@@ -2,7 +2,7 @@ module tests
 
 go 1.23
 
-toolchain go1.23.3
+toolchain go1.23.4
 
 require (
 	github.com/roadrunner-server/config/v5 v5.0.4
@@ -34,7 +34,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/roadrunner-server/errors v1.4.1 // indirect
 	github.com/roadrunner-server/events v1.0.1 // indirect
-	github.com/roadrunner-server/pool v1.0.3 // indirect
+	github.com/roadrunner-server/pool v1.1.0 // indirect
 	github.com/roadrunner-server/tcplisten v1.5.1 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
