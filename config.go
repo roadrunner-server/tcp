@@ -48,8 +48,12 @@ func (c *Config) InitDefault() error {
 	c.Pool.InitDefaults()
 
 	if c.ReadBufferSize == 0 {
-		c.ReadBufferSize = 1024 * 1024 * 1
+		// 1mb by default
+		c.ReadBufferSize = 1
 	}
+
+	// convert to megabytes
+	c.ReadBufferSize *= 1024 * 1024
 
 	return nil
 }
