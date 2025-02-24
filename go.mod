@@ -9,8 +9,8 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/roadrunner-server/errors v1.4.1
 	github.com/roadrunner-server/goridge/v3 v3.8.3
-	github.com/roadrunner-server/pool v1.1.2
-	github.com/roadrunner-server/tcplisten v1.5.1
+	github.com/roadrunner-server/pool v1.1.3
+	github.com/roadrunner-server/tcplisten v1.5.2
 	go.uber.org/zap v1.27.0
 )
 
