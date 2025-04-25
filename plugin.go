@@ -90,7 +90,7 @@ func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 
 	// buffer sent to the user
 	p.resBufPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			buf := new(bytes.Buffer)
 			buf.Grow(p.cfg.ReadBufferSize)
 			return buf
@@ -99,20 +99,20 @@ func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 
 	// cyclic buffer to read the data from the connection
 	p.readBufPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			buf := make([]byte, p.cfg.ReadBufferSize)
 			return &buf
 		},
 	}
 
 	p.servInfoPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(handler.ServerInfo)
 		},
 	}
 
 	p.pldPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(payload.Payload)
 		},
 	}
@@ -172,7 +172,7 @@ func (p *Plugin) Stop(ctx context.Context) error {
 		p.mu.Lock()
 		defer p.mu.Unlock()
 
-		p.connections.Range(func(_, value interface{}) bool {
+		p.connections.Range(func(_, value any) bool {
 			conn := value.(net.Conn)
 			if conn != nil {
 				_ = conn.Close()
@@ -181,7 +181,7 @@ func (p *Plugin) Stop(ctx context.Context) error {
 		})
 
 		// then close all listeners
-		p.listeners.Range(func(_, value interface{}) bool {
+		p.listeners.Range(func(_, value any) bool {
 			_ = value.(net.Listener).Close()
 			return true
 		})
@@ -229,7 +229,7 @@ func (p *Plugin) Workers() []*process.State {
 
 	ps := make([]*process.State, len(wrk))
 
-	for i := 0; i < len(wrk); i++ {
+	for i := range wrk {
 		st, err := process.WorkerProcessState(wrk[i])
 		if err != nil {
 			p.log.Error("jobs workers state", zap.Error(err))
