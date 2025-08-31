@@ -12,7 +12,7 @@ require (
 	github.com/roadrunner-server/rpc/v5 v5.1.8
 	github.com/roadrunner-server/server/v5 v5.2.9
 	github.com/roadrunner-server/tcp/v5 v5.1.8
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 )
 
 replace github.com/roadrunner-server/tcp/v5 => ../
