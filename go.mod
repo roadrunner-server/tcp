@@ -2,7 +2,7 @@ module github.com/roadrunner-server/tcp/v5
 
 go 1.25
 
-toolchain go1.25.3
+toolchain go1.25.4
 
 require (
 	github.com/goccy/go-json v0.10.5
@@ -11,7 +11,7 @@ require (
 	github.com/roadrunner-server/goridge/v3 v3.8.3
 	github.com/roadrunner-server/pool v1.1.3
 	github.com/roadrunner-server/tcplisten v1.5.2
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 )
 
 require (
@@ -21,10 +21,10 @@ require (
 	github.com/roadrunner-server/events v1.0.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
-	github.com/tklauser/go-sysconf v0.3.15 // indirect
-	github.com/tklauser/numcpus v0.10.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.16 // indirect
+	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 )
