@@ -4,6 +4,8 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Spiral\RoadRunner\Worker;
 use Spiral\RoadRunner\Tcp\TcpWorker;
+use Spiral\RoadRunner\Tcp\TcpResponse;
+use Spiral\RoadRunner\Tcp\TcpEvent;
 
 // Create new RoadRunner worker from global environment
 $worker = Worker::create();
@@ -19,17 +21,15 @@ while (true) {
         }
 
         $tcpWorker->respond(json_encode([
-            'remote_addr' => $request->remoteAddr,
-            'server' => $request->server,
-            'uuid' => $request->connectionUuid,
-            'body' => $request->body,
-            'event' => $request->event
+            'remote_addr' => $request->getRemoteAddress(),
+            'server' => $request->getServer(),
+            'uuid' => $request->getConnectionUuid(),
+            'body' => $request->getBody(),
+            'event' => $request->getEvent(),
         ]));
     } catch (\Throwable $e) {
-        $tcpWorker->respond("Something went wrong");
-
+        $tcpWorker->respond("Something went wrong: " . $e->getMessage() . "\r\n", TcpResponse::RespondClose);
         $worker->error((string)$e);
-
         continue;
     }
 }

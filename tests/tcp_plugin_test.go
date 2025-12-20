@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -79,8 +80,9 @@ func TestTCPInit(t *testing.T) {
 		}
 	}()
 
+	dialer := &net.Dialer{}
 	time.Sleep(time.Second * 1)
-	c, err := net.Dial("tcp", "127.0.0.1:7777")
+	c, err := dialer.DialContext(context.Background(), "tcp", "127.0.0.1:7777")
 	require.NoError(t, err)
 	_, err = c.Write([]byte("wuzaaaa\n\r\n"))
 	require.NoError(t, err)
@@ -91,7 +93,7 @@ func TestTCPInit(t *testing.T) {
 
 	var d1 map[string]any
 	err = json.Unmarshal(buf[:n], &d1)
-	fmt.Println(d1)
+	t.Log(string(buf))
 	require.NoError(t, err)
 
 	require.Equal(t, d1["remote_addr"].(string), c.LocalAddr().String())
@@ -101,7 +103,7 @@ func TestTCPInit(t *testing.T) {
 	// ---
 
 	time.Sleep(time.Second * 1)
-	c, err = net.Dial("tcp", "127.0.0.1:8889")
+	c, err = dialer.DialContext(context.Background(), "tcp", "127.0.0.1:8889")
 	require.NoError(t, err)
 	_, err = c.Write([]byte("helooooo\r\n"))
 	require.NoError(t, err)
@@ -122,7 +124,7 @@ func TestTCPInit(t *testing.T) {
 	// ---
 
 	time.Sleep(time.Second * 1)
-	c, err = net.Dial("tcp", "127.0.0.1:8810")
+	c, err = dialer.DialContext(context.Background(), "tcp", "127.0.0.1:8810")
 	require.NoError(t, err)
 	_, err = c.Write([]byte("HEEEEEEEEEEEEEYYYYYYYYYYYYY\r\n"))
 	require.NoError(t, err)
@@ -199,8 +201,9 @@ func TestTCPEmptySend(t *testing.T) {
 		}
 	}()
 
+	dialer := &net.Dialer{}
 	time.Sleep(time.Second * 2)
-	c, err := net.Dial("tcp", "127.0.0.1:7779")
+	c, err := dialer.DialContext(context.Background(), "tcp", "127.0.0.1:7779")
 	require.NoError(t, err)
 	_, err = c.Write([]byte(""))
 	require.NoError(t, err)
@@ -277,8 +280,9 @@ func TestTCPConnClose(t *testing.T) {
 		}
 	}()
 
+	dialer := &net.Dialer{}
 	time.Sleep(time.Second * 1)
-	c, err := net.Dial("tcp", "127.0.0.1:7788")
+	c, err := dialer.DialContext(context.Background(), "tcp", "127.0.0.1:7788")
 	require.NoError(t, err)
 	_, err = c.Write([]byte("hello \r\n"))
 	require.NoError(t, err)
@@ -359,7 +363,8 @@ func TestTCPFull(t *testing.T) {
 	waitCh := make(chan struct{}, 3)
 
 	go func() {
-		c, err := net.Dial("tcp", "127.0.0.1:7778")
+		dialer := &net.Dialer{}
+		c, err := dialer.DialContext(context.Background(), "tcp", "127.0.0.1:7778")
 		require.NoError(t, err)
 
 		buf := make([]byte, 1024)
@@ -388,7 +393,8 @@ func TestTCPFull(t *testing.T) {
 	}()
 
 	go func() {
-		c, err := net.Dial("tcp", "127.0.0.1:8811")
+		dialer := &net.Dialer{}
+		c, err := dialer.DialContext(context.Background(), "tcp", "127.0.0.1:8811")
 		require.NoError(t, err)
 
 		buf := make([]byte, 1024)
@@ -416,7 +422,8 @@ func TestTCPFull(t *testing.T) {
 	}()
 
 	go func() {
-		c, err := net.Dial("tcp", "127.0.0.1:8812")
+		dialer := &net.Dialer{}
+		c, err := dialer.DialContext(context.Background(), "tcp", "127.0.0.1:8812")
 		require.NoError(t, err)
 
 		buf := make([]byte, 1024)
@@ -456,7 +463,8 @@ func TestTCPFull(t *testing.T) {
 
 func closeConn(uuid string, address string) func(t *testing.T) {
 	return func(t *testing.T) {
-		conn, err := net.Dial("tcp", address)
+		dialer := &net.Dialer{}
+		conn, err := dialer.DialContext(context.Background(), "tcp", address)
 		require.NoError(t, err)
 		client := rpc.NewClientWithCodec(goridgeRpc.NewClientCodec(conn))
 		var ret bool
