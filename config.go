@@ -4,7 +4,7 @@ import (
 	"unsafe"
 
 	"github.com/roadrunner-server/errors"
-	"github.com/roadrunner-server/pool/pool"
+	"github.com/roadrunner-server/pool/v2/pool"
 )
 
 type Srv struct {
