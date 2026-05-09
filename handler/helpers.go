@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/goccy/go-json"
+	"encoding/json"
 )
 
 func (h *Handler) generate(event string) ([]byte, error) {
