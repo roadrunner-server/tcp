@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log/slog"
 	"net"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/roadrunner-server/pool/v2/payload"
-	"go.uber.org/zap"
 )
 
 type Handler struct {
@@ -19,7 +19,7 @@ type Handler struct {
 	delim       []byte
 	uuid        string
 	wPool       func(*payload.Payload) (*payload.Payload, error)
-	log         *zap.Logger
+	log         *slog.Logger
 
 	servInfoPool *sync.Pool
 	readBufPool  *sync.Pool
@@ -31,7 +31,7 @@ func NewHandler(
 	conn net.Conn,
 	delim []byte, serverName string,
 	wPool func(*payload.Payload) (*payload.Payload, error),
-	pldPool *sync.Pool, siPool *sync.Pool, readBufPool *sync.Pool, resBufPool *sync.Pool, connections *sync.Map, log *zap.Logger) *Handler {
+	pldPool *sync.Pool, siPool *sync.Pool, readBufPool *sync.Pool, resBufPool *sync.Pool, connections *sync.Map, log *slog.Logger) *Handler {
 	return &Handler{
 		conn:         conn,
 		connections:  connections,
@@ -54,7 +54,7 @@ func (h *Handler) Start() {
 
 	pldCtxConnected, err := h.generate(EventConnected)
 	if err != nil {
-		h.log.Error("payload marshaling error", zap.Error(err))
+		h.log.Error("payload marshaling error", "error", err)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (h *Handler) Start() {
 	// send connected
 	rsp, err := h.wPool(pld)
 	if err != nil {
-		h.log.Error("execute error", zap.Error(err))
+		h.log.Error("execute error", "error", err)
 		_ = h.conn.Close()
 		h.putPayload(pld)
 		return
@@ -90,7 +90,7 @@ func (h *Handler) readLoop() {
 
 	pldCtxData, err := h.generate(EventIncomingData)
 	if err != nil {
-		h.log.Error("generate payload error", zap.Error(err))
+		h.log.Error("generate payload error", "error", err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (h *Handler) readLoop() {
 					h.sendClose()
 					break
 				}
-				h.log.Warn("read error, connection closed", zap.Error(errR))
+				h.log.Warn("read error, connection closed", "error", errR)
 				_ = h.conn.Close()
 
 				h.sendClose()
@@ -149,7 +149,7 @@ func (h *Handler) readLoop() {
 		// reset protection
 		rsp, err := h.wPool(pld)
 		if err != nil {
-			h.log.Error("execute error", zap.Error(err))
+			h.log.Error("execute error", "error", err)
 			_ = h.conn.Close()
 			h.putPayload(pld)
 			return
@@ -176,7 +176,7 @@ func (h *Handler) handleAndContinue(rsp *payload.Payload) bool {
 	case bytes.Equal(rsp.Context, WRITE):
 		_, err := h.conn.Write(rsp.Body)
 		if err != nil {
-			h.log.Error("write response error", zap.Error(err))
+			h.log.Error("write response error", "error", err)
 			_ = h.conn.Close()
 			h.sendClose()
 			// stop
@@ -188,7 +188,7 @@ func (h *Handler) handleAndContinue(rsp *payload.Payload) bool {
 	case bytes.Equal(rsp.Context, WRITECLOSE):
 		_, err := h.conn.Write(rsp.Body)
 		if err != nil {
-			h.log.Error("write response error", zap.Error(err))
+			h.log.Error("write response error", "error", err)
 			_ = h.conn.Close()
 			h.sendClose()
 			// stop
@@ -197,7 +197,7 @@ func (h *Handler) handleAndContinue(rsp *payload.Payload) bool {
 
 		err = h.conn.Close()
 		if err != nil {
-			h.log.Error("close connection error", zap.Error(err))
+			h.log.Error("close connection error", "error", err)
 		}
 
 		h.sendClose()
@@ -207,7 +207,7 @@ func (h *Handler) handleAndContinue(rsp *payload.Payload) bool {
 	case bytes.Equal(rsp.Context, CLOSE):
 		err := h.conn.Close()
 		if err != nil {
-			h.log.Error("close connection error", zap.Error(err))
+			h.log.Error("close connection error", "error", err)
 		}
 
 		h.sendClose()
@@ -217,7 +217,7 @@ func (h *Handler) handleAndContinue(rsp *payload.Payload) bool {
 	default:
 		err := h.conn.Close()
 		if err != nil {
-			h.log.Error("close connection error", zap.Error(err))
+			h.log.Error("close connection error", "error", err)
 		}
 
 		h.sendClose()

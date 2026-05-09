@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/goccy/go-json"
-	"go.uber.org/zap"
 )
 
 func (h *Handler) generate(event string) ([]byte, error) {
@@ -20,7 +19,7 @@ func (h *Handler) generate(event string) ([]byte, error) {
 func (h *Handler) sendClose() {
 	c, err := h.generate(EventClose)
 	if err != nil {
-		h.log.Error("payload marshaling error", zap.Error(err))
+		h.log.Error("payload marshaling error", "error", err)
 		return
 	}
 	pld := h.getPayload()

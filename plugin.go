@@ -3,6 +3,7 @@ package tcp
 import (
 	"bytes"
 	"context"
+	"log/slog"
 	"net"
 	"sync"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/roadrunner-server/pool/v2/worker"
 	"github.com/roadrunner-server/tcp/v6/handler"
 	"github.com/roadrunner-server/tcplisten"
-	"go.uber.org/zap"
 )
 
 const (
@@ -40,12 +40,12 @@ type Pool interface {
 }
 
 type Logger interface {
-	NamedLogger(name string) *zap.Logger
+	NamedLogger(name string) *slog.Logger
 }
 
 // Server creates workers for the application.
 type Server interface {
-	NewPool(ctx context.Context, cfg *pool.Config, env map[string]string, _ *zap.Logger) (*staticPool.Pool, error)
+	NewPool(ctx context.Context, cfg *pool.Config, env map[string]string, _ *slog.Logger) (*staticPool.Pool, error)
 }
 
 type Configurer interface {
@@ -58,7 +58,7 @@ type Configurer interface {
 type Plugin struct {
 	mu          sync.RWMutex
 	cfg         *Config
-	log         *zap.Logger
+	log         *slog.Logger
 	server      Server
 	connections sync.Map // uuid -> conn
 
@@ -146,7 +146,7 @@ func (p *Plugin) Serve() chan error {
 			for {
 				conn, errA := l.Accept()
 				if errA != nil {
-					p.log.Warn("failed to accept the connection", zap.Error(errA))
+					p.log.Warn("failed to accept the connection", "error", errA)
 					// just stop
 					return
 				}
@@ -232,7 +232,7 @@ func (p *Plugin) Workers() []*process.State {
 	for i := range wrk {
 		st, err := process.WorkerProcessState(wrk[i])
 		if err != nil {
-			p.log.Error("jobs workers state", zap.Error(err))
+			p.log.Error("jobs workers state", "error", err)
 			return nil
 		}
 
