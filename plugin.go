@@ -5,9 +5,11 @@ import (
 	"context"
 	"log/slog"
 	"net"
+	"net/http"
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/roadrunner-server/api-go/v6/tcp/v1/tcpV1connect"
 	"github.com/roadrunner-server/errors"
 	"github.com/roadrunner-server/goridge/v4/pkg/frame"
 	"github.com/roadrunner-server/pool/v2/payload"
@@ -257,10 +259,8 @@ func (p *Plugin) Close(uuid string) error {
 	return nil
 }
 
-func (p *Plugin) RPC() any {
-	return &rpc{
-		p: p,
-	}
+func (p *Plugin) RPC() (string, http.Handler) {
+	return tcpV1connect.NewTCPServiceHandler(&rpc{p: p})
 }
 
 func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
