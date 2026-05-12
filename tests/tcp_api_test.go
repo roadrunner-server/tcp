@@ -73,7 +73,6 @@ func startTCPAPIContainer(t *testing.T) func() {
 	}
 }
 
-// TestTCPConnectAPI exercises tcp.Close through the Connect-RPC client (h2c).
 func TestTCPConnectAPI(t *testing.T) {
 	stop := startTCPAPIContainer(t)
 	defer stop()
@@ -97,7 +96,7 @@ func TestTCPConnectAPI(t *testing.T) {
 }
 
 // TestTCPHTTPApi exercises tcp.Close through plain HTTP/1.1 with a protojson
-// body — the wire shape PHP clients use via Guzzle/curl.
+// body — the shape any non-Connect HTTP client uses against this handler.
 func TestTCPHTTPApi(t *testing.T) {
 	stop := startTCPAPIContainer(t)
 	defer stop()
