@@ -2,11 +2,12 @@ package tcp
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net"
-	"net/rpc"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -14,15 +15,18 @@ import (
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
+	tcpV1 "github.com/roadrunner-server/api-go/v6/tcp/v1"
+	"github.com/roadrunner-server/api-go/v6/tcp/v1/tcpV1connect"
 	"github.com/roadrunner-server/config/v6"
 	"github.com/roadrunner-server/endure/v2"
-	goridgeRpc "github.com/roadrunner-server/goridge/v4/pkg/rpc"
 	"github.com/roadrunner-server/logger/v6"
 	rpcPlugin "github.com/roadrunner-server/rpc/v6"
 	"github.com/roadrunner-server/server/v6"
 	"github.com/roadrunner-server/tcp/v6"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/net/http2"
 )
 
 func TestTCPInit(t *testing.T) {
@@ -463,13 +467,18 @@ func TestTCPFull(t *testing.T) {
 
 func closeConn(uuid string, address string) func(t *testing.T) {
 	return func(t *testing.T) {
-		dialer := &net.Dialer{}
-		conn, err := dialer.DialContext(context.Background(), "tcp", address)
+		httpc := &http.Client{
+			Timeout: 30 * time.Second,
+			Transport: &http2.Transport{
+				AllowHTTP: true,
+				DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+					return (&net.Dialer{Timeout: 30 * time.Second}).DialContext(ctx, network, addr)
+				},
+			},
+		}
+		client := tcpV1connect.NewTCPServiceClient(httpc, "http://"+address)
+		resp, err := client.Close(t.Context(), connect.NewRequest(&tcpV1.CloseRequest{Uuid: uuid}))
 		require.NoError(t, err)
-		client := rpc.NewClientWithCodec(goridgeRpc.NewClientCodec(conn))
-		var ret bool
-		err = client.Call("tcp.Close", uuid, &ret)
-		require.NoError(t, err)
-		require.True(t, ret)
+		require.True(t, resp.Msg.GetOk())
 	}
 }

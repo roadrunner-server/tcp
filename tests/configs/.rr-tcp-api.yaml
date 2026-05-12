@@ -1,0 +1,23 @@
+version: '3'
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: "php php_test_files/psr-worker-tcp.php"
+
+tcp:
+  servers:
+    server1:
+      addr: 127.0.0.1:7799
+      delimiter: "\r\n"
+  pool:
+    num_workers: 1
+    allocate_timeout: 60s
+
+logs:
+  level: error
+  mode: development
+
+endure:
+  grace_period: 5s
