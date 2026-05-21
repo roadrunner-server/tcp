@@ -5,7 +5,7 @@ go 1.26
 toolchain go1.26.3
 
 require (
-	connectrpc.com/connect v1.19.2
+	connectrpc.com/connect v1.20.0
 	github.com/google/uuid v1.6.0
 	github.com/roadrunner-server/api-go/v6 v6.0.0-beta.9
 	github.com/roadrunner-server/errors v1.5.0
