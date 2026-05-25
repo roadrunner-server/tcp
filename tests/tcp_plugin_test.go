@@ -57,12 +57,10 @@ func TestTCPInit(t *testing.T) {
 	signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
 
 	stopCh := make(chan struct{}, 1)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			select {
 			case e := <-ch:
@@ -82,7 +80,7 @@ func TestTCPInit(t *testing.T) {
 				return
 			}
 		}
-	}()
+	})
 
 	dialer := &net.Dialer{}
 	time.Sleep(time.Second * 1)
@@ -178,12 +176,10 @@ func TestTCPEmptySend(t *testing.T) {
 	signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
 
 	stopCh := make(chan struct{}, 1)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			select {
 			case e := <-ch:
@@ -203,7 +199,7 @@ func TestTCPEmptySend(t *testing.T) {
 				return
 			}
 		}
-	}()
+	})
 
 	dialer := &net.Dialer{}
 	time.Sleep(time.Second * 2)
@@ -257,12 +253,10 @@ func TestTCPConnClose(t *testing.T) {
 	signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
 
 	stopCh := make(chan struct{}, 1)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			select {
 			case e := <-ch:
@@ -282,7 +276,7 @@ func TestTCPConnClose(t *testing.T) {
 				return
 			}
 		}
-	}()
+	})
 
 	dialer := &net.Dialer{}
 	time.Sleep(time.Second * 1)
@@ -336,12 +330,10 @@ func TestTCPFull(t *testing.T) {
 	signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
 
 	stopCh := make(chan struct{}, 1)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for {
 			select {
 			case e := <-ch:
@@ -361,7 +353,7 @@ func TestTCPFull(t *testing.T) {
 				return
 			}
 		}
-	}()
+	})
 
 	time.Sleep(time.Second * 1)
 	waitCh := make(chan struct{}, 3)
@@ -378,7 +370,7 @@ func TestTCPFull(t *testing.T) {
 		require.Equal(t, []byte("hello \r\n"), buf[:n])
 
 		var d map[string]any
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			_, err = c.Write([]byte("foo \r\n"))
 			require.NoError(t, err)
 
@@ -408,7 +400,7 @@ func TestTCPFull(t *testing.T) {
 		require.Equal(t, []byte("hello \r\n"), buf[:n])
 
 		var d map[string]any
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			_, err = c.Write([]byte("bar \r\n"))
 			require.NoError(t, err)
 
@@ -437,7 +429,7 @@ func TestTCPFull(t *testing.T) {
 		require.Equal(t, []byte("hello \r\n"), buf[:n])
 
 		var d map[string]any
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			_, err = c.Write([]byte("baz \r\n"))
 			require.NoError(t, err)
 
