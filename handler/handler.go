@@ -60,10 +60,10 @@ func (h *Handler) Start() {
 
 	pld := h.getPayload()
 	pld.Context = pldCtxConnected
-	defer h.putPayload(pld)
 
 	// send connected
 	rsp, err := h.wPool(pld)
+	h.putPayload(pld)
 	if err != nil {
 		h.log.Error("execute error", "error", err)
 		_ = h.conn.Close()
