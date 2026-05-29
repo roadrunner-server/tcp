@@ -127,12 +127,17 @@ func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 func (p *Plugin) Serve() chan error {
 	errCh := make(chan error, 1)
 
-	var err error
-	p.wPool, err = p.server.NewPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
+	// NewPool returns a concrete *static_pool.Pool; on error it is a nil
+	// pointer. Assigning it directly to the Pool interface field would produce
+	// a non-nil interface wrapping a nil pointer, so Stop's `p.wPool != nil`
+	// guard would pass and Destroy would panic on a nil receiver. Assign the
+	// interface only after a successful NewPool.
+	wp, err := p.server.NewPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
 	if err != nil {
 		errCh <- err
 		return errCh
 	}
+	p.wPool = wp
 
 	for k := range p.cfg.Servers {
 		go func(addr string, delim []byte, name string) {
