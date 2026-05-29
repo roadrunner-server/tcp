@@ -22,8 +22,8 @@ import (
 )
 
 const (
-	pluginName string = "tcp"
-	RrMode     string = "RR_MODE"
+	pluginName = "tcp"
+	RrMode     = "RR_MODE"
 )
 
 type Pool interface {
@@ -188,14 +188,7 @@ func (p *Plugin) Stop(ctx context.Context) error {
 			return true
 		})
 		if p.wPool != nil {
-			switch pp := p.wPool.(type) {
-			case *staticPool.Pool:
-				if pp != nil {
-					pp.Destroy(ctx)
-				}
-			default:
-				// pool is nil, nothing to do
-			}
+			p.wPool.Destroy(ctx)
 		}
 
 		doneCh <- struct{}{}
@@ -265,34 +258,25 @@ func (p *Plugin) RPC() (string, http.Handler) {
 
 func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
 	p.mu.RLock()
+	defer p.mu.RUnlock()
 
 	result, err := p.wPool.Exec(context.Background(), epld, nil)
 	if err != nil {
-		p.mu.RUnlock()
 		return nil, err
 	}
-
-	var r *payload.Payload
 
 	select {
 	case pld := <-result:
 		if pld.Error() != nil {
-			p.mu.RUnlock()
 			return nil, pld.Error()
 		}
 		// streaming is not supported
 		if pld.Payload().Flags&frame.STREAM != 0 {
-			p.mu.RUnlock()
 			return nil, errors.Str("streaming is not supported")
 		}
 
-		// assign the payload
-		r = pld.Payload()
+		return pld.Payload(), nil
 	default:
-		p.mu.RUnlock()
 		return nil, errors.Str("activity worker empty response")
 	}
-
-	p.mu.RUnlock()
-	return r, nil
 }

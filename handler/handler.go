@@ -60,17 +60,15 @@ func (h *Handler) Start() {
 
 	pld := h.getPayload()
 	pld.Context = pldCtxConnected
+	defer h.putPayload(pld)
 
 	// send connected
 	rsp, err := h.wPool(pld)
 	if err != nil {
 		h.log.Error("execute error", "error", err)
 		_ = h.conn.Close()
-		h.putPayload(pld)
 		return
 	}
-
-	h.putPayload(pld)
 
 	// handleAndContinue return true if the RR needs to return from the loop, or false to continue
 	if h.handleAndContinue(rsp) {
@@ -78,9 +76,8 @@ func (h *Handler) Start() {
 	}
 }
 
-func (h *Handler) Release() {
-	// noop at the moment
-}
+// Release is a no-op placeholder reserved for future resource cleanup.
+func (h *Handler) Release() {}
 
 func (h *Handler) readLoop() {
 	rbuf := h.getReadBuf()
