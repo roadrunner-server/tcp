@@ -1,8 +1,6 @@
 package tcp
 
 import (
-	"unsafe"
-
 	"github.com/roadrunner-server/errors"
 	"github.com/roadrunner-server/pool/v2/pool"
 )
@@ -39,7 +37,7 @@ func (c *Config) InitDefault() error {
 			continue
 		}
 
-		v.delimBytes = strToBytes(v.Delimiter)
+		v.delimBytes = []byte(v.Delimiter)
 	}
 
 	if c.Pool == nil {
@@ -56,12 +54,4 @@ func (c *Config) InitDefault() error {
 	c.ReadBufferSize *= 1024 * 1024
 
 	return nil
-}
-
-func strToBytes(data string) []byte {
-	if data == "" {
-		return nil
-	}
-
-	return unsafe.Slice(unsafe.StringData(data), len(data))
 }

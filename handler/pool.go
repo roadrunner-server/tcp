@@ -47,5 +47,7 @@ func (h *Handler) getPayload() *payload.Payload {
 func (h *Handler) putPayload(pld *payload.Payload) {
 	pld.Body = nil
 	pld.Context = nil
+	pld.Codec = 0
+	pld.Flags = 0
 	h.pldPool.Put(pld)
 }

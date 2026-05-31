@@ -24,6 +24,8 @@ func (h *Handler) sendClose() {
 	}
 	pld := h.getPayload()
 	pld.Context = c
-	_, _ = h.wPool(pld)
+	if _, err = h.wPool(pld); err != nil {
+		h.log.Warn("failed to send close event to worker", "error", err)
+	}
 	h.putPayload(pld)
 }

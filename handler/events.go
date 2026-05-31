@@ -1,6 +1,7 @@
 package handler
 
-// immutable
+// These byte slices are treated as read-only sentinel values for worker responses.
+// They are package-level vars (not consts) because []byte cannot be const in Go.
 var (
 	CLOSE      = []byte("CLOSE")      //nolint:gochecknoglobals
 	CONTINUE   = []byte("CONTINUE")   //nolint:gochecknoglobals

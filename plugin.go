@@ -22,8 +22,8 @@ import (
 )
 
 const (
-	pluginName string = "tcp"
-	RrMode     string = "RR_MODE"
+	pluginName = "tcp"
+	RrMode     = "RR_MODE"
 )
 
 type Pool interface {
@@ -127,12 +127,17 @@ func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 func (p *Plugin) Serve() chan error {
 	errCh := make(chan error, 1)
 
-	var err error
-	p.wPool, err = p.server.NewPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
+	// NewPool returns a concrete *static_pool.Pool; on error it is a nil
+	// pointer. Assigning it directly to the Pool interface field would produce
+	// a non-nil interface wrapping a nil pointer, so Stop's `p.wPool != nil`
+	// guard would pass and Destroy would panic on a nil receiver. Assign the
+	// interface only after a successful NewPool.
+	wp, err := p.server.NewPool(context.Background(), p.cfg.Pool, map[string]string{RrMode: pluginName}, nil)
 	if err != nil {
 		errCh <- err
 		return errCh
 	}
+	p.wPool = wp
 
 	for k := range p.cfg.Servers {
 		go func(addr string, delim []byte, name string) {
@@ -188,14 +193,7 @@ func (p *Plugin) Stop(ctx context.Context) error {
 			return true
 		})
 		if p.wPool != nil {
-			switch pp := p.wPool.(type) {
-			case *staticPool.Pool:
-				if pp != nil {
-					pp.Destroy(ctx)
-				}
-			default:
-				// pool is nil, nothing to do
-			}
+			p.wPool.Destroy(ctx)
 		}
 
 		doneCh <- struct{}{}
@@ -265,34 +263,25 @@ func (p *Plugin) RPC() (string, http.Handler) {
 
 func (p *Plugin) Exec(epld *payload.Payload) (*payload.Payload, error) {
 	p.mu.RLock()
+	defer p.mu.RUnlock()
 
 	result, err := p.wPool.Exec(context.Background(), epld, nil)
 	if err != nil {
-		p.mu.RUnlock()
 		return nil, err
 	}
-
-	var r *payload.Payload
 
 	select {
 	case pld := <-result:
 		if pld.Error() != nil {
-			p.mu.RUnlock()
 			return nil, pld.Error()
 		}
 		// streaming is not supported
 		if pld.Payload().Flags&frame.STREAM != 0 {
-			p.mu.RUnlock()
 			return nil, errors.Str("streaming is not supported")
 		}
 
-		// assign the payload
-		r = pld.Payload()
+		return pld.Payload(), nil
 	default:
-		p.mu.RUnlock()
 		return nil, errors.Str("activity worker empty response")
 	}
-
-	p.mu.RUnlock()
-	return r, nil
 }
