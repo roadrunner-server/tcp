@@ -459,6 +459,7 @@ func closeConn(uuid string, address string) func(t *testing.T) {
 		conn, err := (&net.Dialer{}).DialContext(t.Context(), "tcp", address)
 		require.NoError(t, err)
 		client := rpc.NewClientWithCodec(goridgeRpc.NewClientCodec(conn))
+		defer func() { _ = client.Close() }()
 
 		var out tcpV1.Response
 		err = client.Call("tcp.Close", &tcpV1.CloseRequest{Uuid: uuid}, &out)
