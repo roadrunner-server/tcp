@@ -6,7 +6,6 @@ toolchain go1.26.5
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/roadrunner-server/api-go/v6 v6.0.0-beta.13
 	github.com/roadrunner-server/errors v1.5.0
 	github.com/roadrunner-server/goridge/v4 v4.0.0-beta.3
 	github.com/roadrunner-server/pool/v2 v2.0.0-beta.1
@@ -24,5 +23,4 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	google.golang.org/protobuf v1.36.12 // indirect
 )

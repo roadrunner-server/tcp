@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	tcpV1 "github.com/roadrunner-server/api-go/v6/tcp/v1"
 	"github.com/roadrunner-server/config/v6"
 	"github.com/roadrunner-server/endure/v2"
 	goridgeRpc "github.com/roadrunner-server/goridge/v4/pkg/rpc"
@@ -461,9 +460,9 @@ func closeConn(uuid string, address string) func(t *testing.T) {
 		client := rpc.NewClientWithCodec(goridgeRpc.NewClientCodec(conn))
 		defer func() { _ = client.Close() }()
 
-		var out tcpV1.Response
-		err = client.Call("tcp.Close", &tcpV1.CloseRequest{Uuid: uuid}, &out)
+		var ret bool
+		err = client.Call("tcp.Close", uuid, &ret)
 		require.NoError(t, err)
-		require.True(t, out.GetOk())
+		require.True(t, ret)
 	}
 }
