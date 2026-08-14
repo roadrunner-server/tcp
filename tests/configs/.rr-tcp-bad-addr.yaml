@@ -5,12 +5,12 @@ server:
 
 tcp:
   servers:
-    tcp_access_point_1:
-      addr: 127.0.0.1:7779
+    server1:
+      addr: "garbage://127.0.0.1:7792"
       delimiter: "\r\n"
 
   pool:
-    num_workers: 2
+    num_workers: 1
     allocate_timeout: 60s
 
 endure:

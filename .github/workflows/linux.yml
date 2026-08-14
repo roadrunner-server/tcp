@@ -58,21 +58,28 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: ${{ runner.os }}-go-
 
+      - name: Create folders
+        run: |
+          mkdir ./tests/coverage-ci
+
       - name: Install Go dependencies
         run: go mod download
+
+      - name: Run TCP unit tests with coverage
+        run: |
+          go test -timeout 20m -v -race -cover -tags=debug -coverpkg=./... -coverprofile=./tests/coverage-ci/tcpu.out -covermode=atomic ./...
 
       - name: Run golang tests with coverage
         run: |
           cd tests
-          mkdir ./coverage-ci
 
-          go test -timeout 20m -v -race -cover -tags=debug -failfast -coverpkg=github.com/roadrunner-server/tcp/v6 -coverprofile=./coverage-ci/tcp.out -covermode=atomic ./...
+          go test -timeout 20m -v -race -cover -tags=debug -coverpkg=github.com/roadrunner-server/tcp/v6/... -coverprofile=./coverage-ci/tcp.out -covermode=atomic .
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v7
         with:
           name: coverage
-          path: ./tests/coverage-ci/tcp.out
+          path: ./tests/coverage-ci
 
   codecov:
     name: Upload codecov

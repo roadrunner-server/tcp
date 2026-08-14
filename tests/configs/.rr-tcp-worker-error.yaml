@@ -1,12 +1,12 @@
 version: '3'
 
 server:
-  command: "php php_test_files/psr-worker-tcp.php"
+  command: "php php_test_files/psr-worker-tcp-error.php"
 
 tcp:
   servers:
-    tcp_access_point_1:
-      addr: 127.0.0.1:7779
+    server1:
+      addr: 127.0.0.1:7791
       delimiter: "\r\n"
 
   pool:
