@@ -5,7 +5,6 @@ require __DIR__ . '/vendor/autoload.php';
 use Spiral\RoadRunner\Worker;
 use Spiral\RoadRunner\Tcp\TcpWorker;
 use Spiral\RoadRunner\Tcp\TcpResponse;
-use Spiral\RoadRunner\Tcp\TcpEvent;
 
 // Create new RoadRunner worker from global environment
 $worker = Worker::create();
