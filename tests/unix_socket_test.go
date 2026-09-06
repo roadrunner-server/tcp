@@ -41,6 +41,9 @@ func TestUnixSocketConfig(t *testing.T) {
 		{name: "unset mode", addr: "unix://test.sock", options: "{uid: 0, gid: 0}", zeroIDs: true},
 		{name: "TCP options", addr: "127.0.0.1:0", options: "{}", invalid: true},
 		{name: "unquoted mode", addr: "unix://test.sock", options: "{mode: 0660}", invalid: true},
+		{name: "scalar options", addr: "unix://test.sock", options: "false", invalid: true},
+		{name: "unsigned UID out of range", addr: "unix://test.sock", options: "{uid: 18446744073709551615}", invalid: true},
+		{name: "unsigned GID out of range", addr: "unix://test.sock", options: "{gid: 18446744073709551615}", invalid: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), ".rr.yaml")
