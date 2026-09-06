@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/roadrunner-server/pool/v2/pool"
+	"github.com/roadrunner-server/tcplisten"
 	"github.com/stretchr/testify/require"
 )
 
@@ -105,6 +106,7 @@ func TestConfigPoolDefaults(t *testing.T) {
 		cfg := &Config{Servers: map[string]*Srv{"server1": {Addr: "127.0.0.1:0"}}}
 
 		require.NoError(t, cfg.InitDefault())
+		require.Nil(t, cfg.Servers["server1"].UnixSocket)
 		require.NotNil(t, cfg.Pool)
 		require.NotZero(t, cfg.Pool.NumWorkers)
 		require.Equal(t, time.Minute, cfg.Pool.AllocateTimeout)
@@ -122,4 +124,26 @@ func TestConfigPoolDefaults(t *testing.T) {
 		// the untouched timeouts still get their defaults
 		require.Equal(t, time.Minute, cfg.Pool.DestroyTimeout)
 	})
+}
+
+func TestConfigUnixSocketInvalid(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		addr string
+		mode string
+	}{
+		{name: "TCP", addr: "127.0.0.1:0"},
+		{name: "TCP scheme", addr: "tcp://127.0.0.1:0", mode: "0600"},
+		{name: "empty UNIX path", addr: "unix://"},
+		{name: "invalid mode", addr: "unix://test.sock", mode: "600"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := &Config{Servers: map[string]*Srv{
+				"local": {Addr: tc.addr, UnixSocket: &tcplisten.UnixSocketOptions{Mode: tc.mode}},
+			}}
+			p := &Plugin{}
+			err := p.Init(nil, &stubConfigurer{has: true, cfg: cfg}, nil)
+			require.ErrorContains(t, err, "tcp.servers.local.unix_socket")
+		})
+	}
 }

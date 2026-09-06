@@ -78,9 +78,28 @@ func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 		return errors.E(op, errors.Disabled)
 	}
 
+	var servers map[string]any
+	if err := cfg.UnmarshalKey("tcp.servers", &servers); err != nil {
+		return errors.E(op, err)
+	}
+	for name := range servers {
+		key := "tcp.servers." + name + ".unix_socket"
+		if cfg.Has(key) {
+			if err := validateUnixSocketIDs(cfg, key); err != nil {
+				return errors.E(op, err)
+			}
+		}
+	}
+
 	err := cfg.UnmarshalKey(pluginName, &p.cfg)
 	if err != nil {
 		return errors.E(op, err)
+	}
+
+	for name, srv := range p.cfg.Servers {
+		if srv.UnixSocket == nil && cfg.Has("tcp.servers."+name+".unix_socket") {
+			srv.UnixSocket = &tcplisten.UnixSocketOptions{}
+		}
 	}
 
 	err = p.cfg.InitDefault()
@@ -138,9 +157,8 @@ func (p *Plugin) Serve() chan error {
 	p.wPool = wp
 
 	for k := range p.cfg.Servers {
-		go func(addr string, delim []byte, name string) {
-			// create a TCP listener
-			l, err := tcplisten.CreateListener(addr)
+		go func(addr string, options *tcplisten.UnixSocketOptions, delim []byte, name string) {
+			l, err := tcplisten.CreateListenerWithOptions(addr, options)
 			if err != nil {
 				errCh <- err
 				return
@@ -163,7 +181,7 @@ func (p *Plugin) Serve() chan error {
 					h.Release()
 				}()
 			}
-		}(p.cfg.Servers[k].Addr, p.cfg.Servers[k].delimBytes, k)
+		}(p.cfg.Servers[k].Addr, p.cfg.Servers[k].UnixSocket, p.cfg.Servers[k].delimBytes, k)
 	}
 
 	return errCh

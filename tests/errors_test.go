@@ -48,5 +48,5 @@ func TestTCPBadListenAddress(t *testing.T) {
 		&tcp.Plugin{},
 	})
 
-	require.ErrorContains(t, err, "invalid Protocol")
+	require.ErrorContains(t, err, "invalid protocol")
 }

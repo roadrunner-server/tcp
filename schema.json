@@ -25,6 +25,9 @@
                 "127.0.0.1:7778"
               ]
             },
+            "unix_socket": {
+              "$ref": "https://raw.githubusercontent.com/roadrunner-server/tcplisten/v1.6.0/schema.json"
+            },
             "delimiter": {
               "description": "Data packet delimiter. Every send should end with either EOF or this delimiter.",
               "type": "string",
