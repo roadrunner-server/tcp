@@ -138,9 +138,8 @@ func (p *Plugin) Serve() chan error {
 	p.wPool = wp
 
 	for k := range p.cfg.Servers {
-		go func(addr string, delim []byte, name string) {
-			// create a TCP listener
-			l, err := tcplisten.CreateListener(addr)
+		go func(addr string, options *tcplisten.UnixSocketOptions, delim []byte, name string) {
+			l, err := tcplisten.CreateListenerWithOptions(addr, options)
 			if err != nil {
 				errCh <- err
 				return
@@ -163,7 +162,7 @@ func (p *Plugin) Serve() chan error {
 					h.Release()
 				}()
 			}
-		}(p.cfg.Servers[k].Addr, p.cfg.Servers[k].delimBytes, k)
+		}(p.cfg.Servers[k].Addr, p.cfg.Servers[k].UnixSocket, p.cfg.Servers[k].delimBytes, k)
 	}
 
 	return errCh

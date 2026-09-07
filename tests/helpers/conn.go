@@ -40,6 +40,22 @@ func Dial(t *testing.T, addr string) net.Conn {
 	return conn
 }
 
+// DialUnix waits for a UNIX server and connects. The connection is closed by t.Cleanup.
+func DialUnix(t *testing.T, path string) net.Conn {
+	t.Helper()
+
+	d := net.Dialer{Timeout: time.Second}
+	var conn net.Conn
+	require.Eventually(t, func() bool {
+		var err error
+		conn, err = d.DialContext(t.Context(), "unix", path)
+		return err == nil
+	}, ListenerTimeout, ListenerTick, "listener %s did not start", path)
+	t.Cleanup(func() { _ = conn.Close() })
+
+	return conn
+}
+
 // Write sends payload over conn.
 func Write(t *testing.T, conn net.Conn, payload string) {
 	t.Helper()

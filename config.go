@@ -1,13 +1,17 @@
 package tcp
 
 import (
+	"fmt"
+
 	"github.com/roadrunner-server/errors"
 	"github.com/roadrunner-server/pool/v2/pool"
+	"github.com/roadrunner-server/tcplisten"
 )
 
 type Srv struct {
-	Addr       string `mapstructure:"addr"`
-	Delimiter  string `mapstructure:"delimiter"`
+	Addr       string                       `mapstructure:"addr"`
+	UnixSocket *tcplisten.UnixSocketOptions `mapstructure:"unix_socket"`
+	Delimiter  string                       `mapstructure:"delimiter"`
 	delimBytes []byte
 }
 
@@ -30,6 +34,10 @@ func (c *Config) InitDefault() error {
 
 		if v.Addr == "" {
 			return errors.Errorf("empty address for the server: %s", k)
+		}
+
+		if err := v.UnixSocket.Validate(v.Addr); err != nil {
+			return fmt.Errorf("tcp.servers.%s.unix_socket: %w", k, err)
 		}
 
 		// already written
