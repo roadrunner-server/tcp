@@ -4,13 +4,11 @@ package tests
 
 import (
 	"fmt"
-	"log/slog"
 	"net"
 	"os"
 	"path/filepath"
 	"slices"
 	"strconv"
-	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -18,15 +16,14 @@ import (
 	"tests/helpers"
 
 	"github.com/roadrunner-server/config/v6"
-	"github.com/roadrunner-server/endure/v2"
 	"github.com/roadrunner-server/logger/v6"
 	"github.com/roadrunner-server/server/v6"
 	"github.com/roadrunner-server/tcp/v6"
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnixSocketConfig(t *testing.T) {
-	for _, tc := range []struct {
+func TestTCPUnixSocketConfig(t *testing.T) {
+	cases := []struct {
 		name    string
 		addr    string
 		options string
@@ -46,7 +43,9 @@ func TestUnixSocketConfig(t *testing.T) {
 		{name: "negative GID", addr: "unix://test.sock", options: "{gid: -1}", wantErr: "invalid unix socket gid"},
 		{name: "reserved UID", addr: "unix://test.sock", options: "{uid: 4294967295}", wantErr: "invalid unix socket uid"},
 		{name: "reserved GID", addr: "unix://test.sock", options: "{gid: 4294967295}", wantErr: "invalid unix socket gid"},
-	} {
+	}
+
+	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), ".rr.yaml")
 			data := fmt.Sprintf(`version: "3"
@@ -75,7 +74,7 @@ tcp:
 	}
 }
 
-func TestUnixSocketServers(t *testing.T) {
+func TestTCPUnixSocketServers(t *testing.T) {
 	worker, err := filepath.Abs("php_test_files/psr-worker-tcp.php")
 	require.NoError(t, err)
 	t.Chdir(t.TempDir())
@@ -100,65 +99,60 @@ tcp:
     destroy_timeout: 5s
 `, worker, uid, gid)
 	require.NoError(t, os.WriteFile(".rr.yaml", []byte(data), 0o600))
-	cfg := &config.Plugin{Path: ".rr.yaml"}
-	cont := endure.New(slog.LevelError)
-	require.NoError(t, cont.RegisterAll(cfg, &logger.Plugin{}, &server.Plugin{}, &tcp.Plugin{}))
-	require.NoError(t, cont.Init())
-	errCh, err := cont.Serve()
-	require.NoError(t, err)
-	stop := sync.OnceValue(cont.Stop)
-	t.Cleanup(func() { require.NoError(t, stop()) })
-
-	for _, srv := range []struct {
-		name    string
-		mode    os.FileMode
-		message string
-	}{
-		{name: "first", mode: 0o600, message: "first\r\n"},
-		{name: "second", mode: 0o640, message: "second\n"},
-	} {
-		t.Run(srv.name, func(t *testing.T) {
-			path := srv.name + ".sock"
-			d := net.Dialer{Timeout: time.Second}
-			var conn net.Conn
-			require.Eventually(t, func() bool {
-				var errD error
-				conn, errD = d.DialContext(t.Context(), "unix", path)
-				return errD == nil
-			}, 5*time.Second, 10*time.Millisecond, "listener %s", srv.name)
-			t.Cleanup(func() { _ = conn.Close() })
-
-			connected := helpers.ReadResponse(t, conn)
-			require.Equal(t, "CONNECTED", connected.Event)
-			require.Equal(t, srv.name, connected.Server)
-
-			info, errS := os.Stat(path)
-			require.NoError(t, errS)
-			require.NotZero(t, info.Mode()&os.ModeSocket)
-			require.Equal(t, srv.mode, info.Mode().Perm())
-			stat := info.Sys().(*syscall.Stat_t)
-			require.EqualValues(t, uid, stat.Uid)
-			require.EqualValues(t, gid, stat.Gid)
-
-			data := helpers.WriteRead(t, conn, srv.message)
-			require.Equal(t, "DATA", data.Event)
-			require.Equal(t, srv.name, data.Server)
-			require.Equal(t, srv.message, data.Body)
+	t.Run("serve", func(t *testing.T) {
+		helpers.Start(t, ".rr.yaml", []any{
+			&server.Plugin{},
+			&tcp.Plugin{},
 		})
-	}
-	select {
-	case result := <-errCh:
-		t.Fatalf("serve error: %v", result)
-	default:
-	}
-	require.NoError(t, stop())
+
+		servers := []struct {
+			name    string
+			mode    os.FileMode
+			message string
+		}{
+			{name: "first", mode: 0o600, message: "first\r\n"},
+			{name: "second", mode: 0o640, message: "second\n"},
+		}
+
+		for _, srv := range servers {
+			t.Run(srv.name, func(t *testing.T) {
+				path := srv.name + ".sock"
+				d := net.Dialer{Timeout: time.Second}
+				var conn net.Conn
+				require.Eventually(t, func() bool {
+					var errD error
+					conn, errD = d.DialContext(t.Context(), "unix", path)
+					return errD == nil
+				}, 5*time.Second, 10*time.Millisecond, "listener %s", srv.name)
+				t.Cleanup(func() { _ = conn.Close() })
+
+				connected := helpers.ReadResponse(t, conn)
+				require.Equal(t, "CONNECTED", connected.Event)
+				require.Equal(t, srv.name, connected.Server)
+
+				info, errS := os.Stat(path)
+				require.NoError(t, errS)
+				require.NotZero(t, info.Mode()&os.ModeSocket)
+				require.Equal(t, srv.mode, info.Mode().Perm())
+				stat := info.Sys().(*syscall.Stat_t)
+				require.EqualValues(t, uid, stat.Uid)
+				require.EqualValues(t, gid, stat.Gid)
+
+				data := helpers.WriteRead(t, conn, srv.message)
+				require.Equal(t, "DATA", data.Event)
+				require.Equal(t, srv.name, data.Server)
+				require.Equal(t, srv.message, data.Body)
+			})
+		}
+	})
+
 	for _, path := range []string{"first.sock", "second.sock"} {
 		_, err = os.Stat(path)
 		require.ErrorIs(t, err, os.ErrNotExist)
 	}
 }
 
-func TestUnixSocketOwnershipError(t *testing.T) {
+func TestTCPUnixSocketOwnershipError(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("Requires an unprivileged process.")
 	}
@@ -172,13 +166,15 @@ func TestUnixSocketOwnershipError(t *testing.T) {
 		otherGID++
 	}
 
-	for _, tc := range []struct {
+	cases := []struct {
 		field string
 		id    int
 	}{
 		{field: "uid", id: 0},
 		{field: "gid", id: otherGID},
-	} {
+	}
+
+	for _, tc := range cases {
 		t.Run(tc.field, func(t *testing.T) {
 			t.Chdir(t.TempDir())
 			t.Setenv("RR_TEST_SOCKET_ID", strconv.Itoa(tc.id))

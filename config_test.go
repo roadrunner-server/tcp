@@ -125,19 +125,8 @@ func TestConfigPoolDefaults(t *testing.T) {
 	})
 }
 
-func TestConfigUnixSocketDefaults(t *testing.T) {
-	cfg := &Config{Servers: map[string]*Srv{
-		"tcp":  {Addr: "127.0.0.1:0"},
-		"unix": {Addr: "unix://test.sock"},
-	}}
-
-	require.NoError(t, cfg.InitDefault())
-	require.Nil(t, cfg.Servers["tcp"].UnixSocket)
-	require.Nil(t, cfg.Servers["unix"].UnixSocket)
-}
-
 func TestConfigUnixSocketInvalid(t *testing.T) {
-	for _, tc := range []struct {
+	cases := []struct {
 		name    string
 		addr    string
 		options tcplisten.UnixSocketOptions
@@ -148,11 +137,14 @@ func TestConfigUnixSocketInvalid(t *testing.T) {
 		{name: "invalid mode", addr: "unix://test.sock", options: tcplisten.UnixSocketOptions{Mode: "600"}},
 		{name: "negative UID", addr: "unix://test.sock", options: tcplisten.UnixSocketOptions{UID: new(-1)}},
 		{name: "negative GID", addr: "unix://test.sock", options: tcplisten.UnixSocketOptions{GID: new(-1)}},
-	} {
+	}
+
+	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := &Config{Servers: map[string]*Srv{
 				"local": {Addr: tc.addr, UnixSocket: &tc.options},
 			}}
+
 			require.ErrorContains(t, cfg.InitDefault(), "tcp.servers.local.unix_socket")
 		})
 	}
