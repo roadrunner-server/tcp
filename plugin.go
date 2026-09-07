@@ -78,28 +78,9 @@ func (p *Plugin) Init(log Logger, cfg Configurer, server Server) error {
 		return errors.E(op, errors.Disabled)
 	}
 
-	var servers map[string]any
-	if err := cfg.UnmarshalKey("tcp.servers", &servers); err != nil {
-		return errors.E(op, err)
-	}
-	for name := range servers {
-		key := "tcp.servers." + name + ".unix_socket"
-		if cfg.Has(key) {
-			if err := validateUnixSocketIDs(cfg, key); err != nil {
-				return errors.E(op, err)
-			}
-		}
-	}
-
 	err := cfg.UnmarshalKey(pluginName, &p.cfg)
 	if err != nil {
 		return errors.E(op, err)
-	}
-
-	for name, srv := range p.cfg.Servers {
-		if srv.UnixSocket == nil && cfg.Has("tcp.servers."+name+".unix_socket") {
-			srv.UnixSocket = &tcplisten.UnixSocketOptions{}
-		}
 	}
 
 	err = p.cfg.InitDefault()

@@ -106,7 +106,6 @@ func TestConfigPoolDefaults(t *testing.T) {
 		cfg := &Config{Servers: map[string]*Srv{"server1": {Addr: "127.0.0.1:0"}}}
 
 		require.NoError(t, cfg.InitDefault())
-		require.Nil(t, cfg.Servers["server1"].UnixSocket)
 		require.NotNil(t, cfg.Pool)
 		require.NotZero(t, cfg.Pool.NumWorkers)
 		require.Equal(t, time.Minute, cfg.Pool.AllocateTimeout)
@@ -126,24 +125,35 @@ func TestConfigPoolDefaults(t *testing.T) {
 	})
 }
 
+func TestConfigUnixSocketDefaults(t *testing.T) {
+	cfg := &Config{Servers: map[string]*Srv{
+		"tcp":  {Addr: "127.0.0.1:0"},
+		"unix": {Addr: "unix://test.sock"},
+	}}
+
+	require.NoError(t, cfg.InitDefault())
+	require.Nil(t, cfg.Servers["tcp"].UnixSocket)
+	require.Nil(t, cfg.Servers["unix"].UnixSocket)
+}
+
 func TestConfigUnixSocketInvalid(t *testing.T) {
 	for _, tc := range []struct {
-		name string
-		addr string
-		mode string
+		name    string
+		addr    string
+		options tcplisten.UnixSocketOptions
 	}{
 		{name: "TCP", addr: "127.0.0.1:0"},
-		{name: "TCP scheme", addr: "tcp://127.0.0.1:0", mode: "0600"},
+		{name: "TCP scheme", addr: "tcp://127.0.0.1:0", options: tcplisten.UnixSocketOptions{Mode: "0600"}},
 		{name: "empty UNIX path", addr: "unix://"},
-		{name: "invalid mode", addr: "unix://test.sock", mode: "600"},
+		{name: "invalid mode", addr: "unix://test.sock", options: tcplisten.UnixSocketOptions{Mode: "600"}},
+		{name: "negative UID", addr: "unix://test.sock", options: tcplisten.UnixSocketOptions{UID: new(-1)}},
+		{name: "negative GID", addr: "unix://test.sock", options: tcplisten.UnixSocketOptions{GID: new(-1)}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := &Config{Servers: map[string]*Srv{
-				"local": {Addr: tc.addr, UnixSocket: &tcplisten.UnixSocketOptions{Mode: tc.mode}},
+				"local": {Addr: tc.addr, UnixSocket: &tc.options},
 			}}
-			p := &Plugin{}
-			err := p.Init(nil, &stubConfigurer{has: true, cfg: cfg}, nil)
-			require.ErrorContains(t, err, "tcp.servers.local.unix_socket")
+			require.ErrorContains(t, cfg.InitDefault(), "tcp.servers.local.unix_socket")
 		})
 	}
 }

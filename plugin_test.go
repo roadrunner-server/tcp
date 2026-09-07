@@ -27,20 +27,11 @@ type stubConfigurer struct {
 	unmarshal error
 }
 
-func (c *stubConfigurer) Has(name string) bool { return c.has && name == pluginName }
+func (c *stubConfigurer) Has(string) bool { return c.has }
 
-func (c *stubConfigurer) UnmarshalKey(name string, out any) error {
+func (c *stubConfigurer) UnmarshalKey(_ string, out any) error {
 	if c.unmarshal != nil {
 		return c.unmarshal
-	}
-
-	if name == "tcp.servers" {
-		servers := make(map[string]any, len(c.cfg.Servers))
-		for name := range c.cfg.Servers {
-			servers[name] = nil
-		}
-		*out.(*map[string]any) = servers
-		return nil
 	}
 
 	dst, ok := out.(**Config)
